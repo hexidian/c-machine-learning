@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <time.h>
 
 void printArray(int *A, int length){
   for (int i = 0; i < length; i++){
@@ -147,7 +148,25 @@ struct node* organiseTree( struct node* head){
   return (nodes[(size-1)/2]);
 }
 
+struct list {
+  int value;
+  struct list* next;
+  int length;
+};
+
+void append(struct list* head, struct list* new){
+  head->length++;
+  if (head->next == NULL) head->next = new;
+  else append(head->next, new);
+}
+
+struct list* element( struct list* head, int elementID){
+  if (elementID == 0) return head;
+  return element( head->next, elementID-1);
+}
+
 int main(){
+  /*
   struct node head = { 100, NULL, NULL, 0 };
   struct node nodeArray[99];
   for (int i = 0; i < 99; i++){
@@ -156,4 +175,22 @@ int main(){
   }
   struct node* newhead = organiseTree(&head);
   printTree(newhead,0);
+  */
+
+  struct list newList = {10, NULL, 1};
+  struct list elements[10000];
+  for (int i = 0; i < 10000; i++){
+    elements[i].next = NULL; elements[i].value = i; elements[i].length = 1;
+    append(&newList,&elements[i]);
+  }
+  struct list* holder;
+  clock_t before = clock();
+  for (int j = 0; j < 1000; j++){
+    holder = &newList;
+    for (int i = 0; i < newList.length; i++){
+      holder = holder->next;
+    }
+  }
+  float cps = CLOCKS_PER_SEC;
+  printf("that took %f seconds\n",(clock()-before)/cps);
 }
