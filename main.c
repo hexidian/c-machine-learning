@@ -120,23 +120,18 @@ void getSortedTreeValues( struct node* this, struct node* values[], int* upToInd
 void fillTree( struct node* nodes[], int headIndex, int min, int max){
   if (min < headIndex && max > headIndex){//the normal situtation
     nodes[headIndex]->left = nodes[ headIndex - ((headIndex - min) / 2 + 1) ];
-    printf("adding %d to the left of %d\n", nodes[ headIndex - ((headIndex - min) / 2 + 1) ]->value, nodes[headIndex]->value);
     nodes[headIndex]->right = nodes[ headIndex + ((max - headIndex) / 2 + 1) ];
-    printf("adding %d to the right of %d\n", nodes[ headIndex + ((max - headIndex) / 2 + 1) ]->value, nodes[headIndex]->value);
     fillTree(nodes, headIndex - ((headIndex - min) / 2 + 1), min, headIndex-1);
     fillTree(nodes, headIndex + ((max - headIndex) / 2 + 1), headIndex+1, max);
   } else if (min < headIndex) {//if we have hit the right bound
     nodes[headIndex]->left = nodes[ headIndex - ((headIndex - min) / 2 + 1) ];
-    printf("adding %d to the left of %d\n", nodes[ headIndex - ((headIndex - min) / 2 + 1) ]->value, nodes[headIndex]->value);
     fillTree(nodes, headIndex - ((headIndex - min) / 2 + 1), min, headIndex-1);
     nodes[headIndex]->right = NULL;
   } else if (max > headIndex) {//if we have hit the left bound
     nodes[headIndex]->right = nodes[ headIndex + ((max - headIndex) / 2 + 1) ];
-    printf("adding %d to the right of %d\n", nodes[ headIndex + ((max - headIndex) / 2 + 1) ]->value, nodes[headIndex]->value);
     fillTree(nodes, headIndex + ((max - headIndex) / 2 + 1), headIndex+1, max);
     nodes[headIndex]->left = NULL;//erase any old pointers
   } else {
-    printf("here for %d\n",nodes[headIndex]->value);
     nodes[headIndex]->left = NULL;
     nodes[headIndex]->right = NULL;
   }
@@ -153,13 +148,12 @@ struct node* organiseTree( struct node* head){
 }
 
 int main(){
-  struct node head = { 20, NULL, NULL, 0 };
-  struct node new = { 5, NULL, NULL, 0 };
-  struct node bottom = { 2, NULL, NULL, 0 };
-  struct node bigger = { 15, NULL, NULL, 0 };
-  treeInsert(&head, &new);
-  treeInsert(&head, &bottom);
-  treeInsert(&head, &bigger);
+  struct node head = { 100, NULL, NULL, 0 };
+  struct node nodeArray[99];
+  for (int i = 0; i < 99; i++){
+    nodeArray[i].value = i; nodeArray[i].left = NULL; nodeArray[i].right = NULL; nodeArray[i].children = 0;
+    treeInsert(&head,&nodeArray[i]);
+  }
   struct node* newhead = organiseTree(&head);
   printTree(newhead,0);
 }
