@@ -165,6 +165,44 @@ struct list* element( struct list* head, int elementID){
   return element( head->next, elementID-1);
 }
 
+struct hillClimber {
+
+  int* values;//an array of values
+  int length;
+  float (*evaluate)(int* testValues, int length);
+
+};
+
+void hillClimb(struct hillClimber* this){
+  int* values = this->values;
+  int length = this->length;
+  int best[3] = {0,0,0}; // in order: value, element, changed by
+  int prevValue;
+  int newValue;
+  int evaluation;
+  for (int i = 0; i < length; i++){
+    prevValue = values[i];
+    for (int changeValue = -1; changeValue < 2; changeValue += 2){
+      newValue = prevValue + changeValue;
+      values[i] = newValue;
+      evaluation = (*(this->evaluate))(values, length);
+      if (evaluation > best[0]){
+        best[0] = evaluation; best[1] = i; best[2] = changeValue;
+      }
+    }
+    values[i] = prevValue;
+  }
+  values[best[1]] += best[2];
+}
+
+float evaluation(int values[],int length){
+  float value = 100;
+  for (int i = 0; i < length; i++){
+    value -= pow(values[i]-2,2);
+  }
+  return value;
+}
+
 int main(){
   /*
   struct node head = { 100, NULL, NULL, 0 };
@@ -176,7 +214,7 @@ int main(){
   struct node* newhead = organiseTree(&head);
   printTree(newhead,0);
   */
-
+  /*
   struct list newList = {10, NULL, 1};
   struct list elements[10000];
   for (int i = 0; i < 10000; i++){
@@ -193,4 +231,14 @@ int main(){
   }
   float cps = CLOCKS_PER_SEC;
   printf("that took %f seconds\n",(clock()-before)/cps);
+  */
+  struct hillClimber tester;
+  int values[3] = {1,2,3};
+  tester.values = values;
+  tester.length = 3;
+  tester.evaluate = *evaluation;
+  for (int i = 0; i < 100; i++){
+    hillClimb(&tester);
+  }
+  printArray(tester.values,3);
 }
