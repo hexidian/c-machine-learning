@@ -203,6 +203,23 @@ float evaluation(int values[],int length){
   return value;
 }
 
+struct tuple {
+
+  float a;
+  float b;
+
+};
+
+struct neuron {
+
+  float* omega;
+  float sigma;
+
+  //the first (zeroth) element will be the delta for the sigma, followed by the omega deltas
+  float* (*function) (float* inputArray, struct neuron existing);
+
+};
+
 int main(){
   /*
   struct node head = { 100, NULL, NULL, 0 };
