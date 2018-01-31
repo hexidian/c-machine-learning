@@ -215,8 +215,10 @@ struct neuron {
   float* omega;
   float sigma;
 
+  float (*function) (float* omegas, float sigma);
+
   //the first (zeroth) element will be the delta for the sigma, followed by the omega deltas
-  float* (*function) (float* inputArray, struct neuron existing);
+  float* (*backProp) (float* inputArray, struct neuron self);
 
 };
 
