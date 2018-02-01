@@ -9,6 +9,12 @@ void printArray(int *A, int length){
   }
 }
 
+void printFloatArray(float *A, int length){
+  for (int i = 0; i < length; i++){
+    printf("%f\n", A[i]);
+  }
+}
+
 void Merge(int *A,int *L,int leftCount,int *R,int rightCount) {
 	int i,j,k;
 
@@ -69,7 +75,7 @@ void printTree(struct node* head, int depth){
   if (head->right != NULL) printTree(head->right, depth +1);
 }
 
-void treeInsert( struct node* this, struct node* new){//this is the line that gives the error
+void treeInsert( struct node* this, struct node* new){
 
   this->children++;
 
@@ -212,15 +218,43 @@ struct tuple {
 
 struct neuron {
 
-  float* omega;
+  float* omegas;
   float sigma;
 
-  float (*function) (float* omegas, float sigma);
+  float (*function) (float* omegas, float* input, float sigma);
 
   //the first (zeroth) element will be the delta for the sigma, followed by the omega deltas
-  float* (*backProp) (float* inputArray, struct neuron self);
+  //IMPORTANT NOTE: the inputArray will be formatted in different ways depending on the funciton. for example:
+    //in a linear funciton it will be formated [x1, y1, x2, y2, x3, y3 ...] and the length will represent the number of coordinate pairs times 2
+  void (*backProp) (float* inputArray, int inputLength, struct neuron* self);//the length of the omega array will depend strictly on the function itself, so that does not need to be input
 
 };
+
+void linearErrorFunc(float* inputArray, int inputLength, struct neuron* self){
+  //NOTE: in this case we have only 1 input node, so there is only 1 omega
+
+  float omegaError = 0;
+  float sigmaError = 0;
+  float fx;
+  for (int i = 0; i < inputLength; i+=2){
+    fx = (self->function)(self->omegas, &inputArray[i], self->sigma);
+    if (inputArray[i] != 0) omegaError += (inputArray[ i + 1 ] - fx) / inputArray[i];  //omegaError += (y-f(x)) / x
+    sigmaError += inputArray[ i + 1 ] - fx;
+  }
+
+  //we need to halve these values so that it doesn't rubberband arround the target out of control
+  self->sigma += sigmaError/inputLength;
+  self->omegas[0] += omegaError/inputLength; //in this case we can make the shortcut of treating it as a single number, because there is only 1 omega in a linear function
+
+}
+
+float linearNeuronFunc (float* omegas, float* input, float sigma) {
+  float m = omegas[0];
+  float b = sigma;
+  float x = input[0];
+  printf("taking %f, %f, and %f, so I output %f\n",m,x,b,(m*x)+b);
+  return (m*x) + b;
+}
 
 int main(){
   /*
@@ -251,6 +285,7 @@ int main(){
   float cps = CLOCKS_PER_SEC;
   printf("that took %f seconds\n",(clock()-before)/cps);
   */
+  /*
   struct hillClimber tester;
   int values[3] = {1,2,3};
   tester.values = values;
@@ -260,4 +295,16 @@ int main(){
     hillClimb(&tester);
   }
   printArray(tester.values,3);
+  */
+  struct neuron lin;
+  float weights[1] = {0};
+  lin.omegas = weights;
+  lin.sigma = 0;
+  lin.function = &linearNeuronFunc;
+  lin.backProp = &linearErrorFunc;
+  float input[4] = {1.0,2.0,2.0,3.0};
+  for (int i = 0; i < 10; i++){
+    (lin.backProp)(input, 4, &lin);
+    printf("omega is now: %f\nsigma is now: %f\n",lin.omegas[0],lin.sigma);
+  }
 }
