@@ -238,7 +238,7 @@ void linearErrorFunc(float* inputArray, int inputLength, struct neuron* self){
   float fx;
   for (int i = 0; i < inputLength; i+=2){
     fx = (self->function)(self->omegas, &inputArray[i], self->sigma);
-    if (inputArray[i] != 0) omegaError += (inputArray[ i + 1 ] - fx) * inputArray[i];  //omegaError += (y-f(x)) / x
+    omegaError += (inputArray[ i + 1 ] - fx) * inputArray[i];  //omegaError += (y-f(x)) / x
     sigmaError += inputArray[ i + 1 ] - fx;
   }
 
@@ -253,6 +253,33 @@ float linearNeuronFunc (float* omegas, float* input, float sigma) {
   float b = sigma;
   float x = input[0];
   return (m*x) + b;
+}
+
+float quadraticNeuronFunc (float* omegas, float* input, float sigma) {
+  float a = omegas[0];
+  float b = omegas[1];
+  float c = sigma;
+  float x = input[0];
+  return a*pow(x,2) + b*x + c;//just ax^2 + bx + c
+}
+
+void quadraticErrorFunc(float* inputArray, int inputLength, struct neuron* self) {
+  float aError = 0;//the first omega
+  float bError = 0;//the second omega
+  float cError = 0;//the sigma error
+  float fx;
+  float error;//just the general error of a signle step
+  for (int i = 0; i < inputLength; i+=2) {
+    fx = (self->function)(self->omegas, &inputArray[i], self->sigma);
+    error = inputArray[i + 1] - fx;
+    aError += error * pow(inputArray[i],2);
+    bError += error * inputArray[i];
+    cError += error;
+  }
+
+  self->sigma += cError / (inputLength*2);
+  self->omegas[0] += aError / (inputLength*2);
+  self->omegas[1] += bError / (inputLength*2);
 }
 
 int main(){
@@ -295,6 +322,7 @@ int main(){
   }
   printArray(tester.values,3);
   */
+  /*
   struct neuron lin;
   float weights[1] = {0};
   lin.omegas = weights;
@@ -306,4 +334,16 @@ int main(){
     (lin.backProp)(input, 4, &lin);
   }
   printf("omega is now: %f\nsigma is now: %f\n",lin.omegas[0],lin.sigma);
+  */
+  struct neuron quad;
+  float weights[2] = {0,0};
+  quad.omegas = weights;
+  quad.sigma = 0;
+  quad.function = &quadraticNeuronFunc;
+  quad.backProp = &quadraticErrorFunc;
+  float input[6] = {0,3,1,6,2,11};
+  for (int i = 0; i < 10000; i++){
+    (quad.backProp)(input, 6, &quad);
+  }
+  printf("a is now: %f\nb is now: %f\nc is now: %f\n",quad.omegas[0],quad.omegas[1],quad.sigma);
 }
