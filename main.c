@@ -223,7 +223,6 @@ struct neuron {
 
   float (*function) (float* omegas, float* input, float sigma);
 
-  //the first (zeroth) element will be the delta for the sigma, followed by the omega deltas
   //IMPORTANT NOTE: the inputArray will be formatted in different ways depending on the funciton. for example:
     //in a linear funciton it will be formated [x1, y1, x2, y2, x3, y3 ...] and the length will represent the number of coordinate pairs times 2
   void (*backProp) (float* inputArray, int inputLength, struct neuron* self);//the length of the omega array will depend strictly on the function itself, so that does not need to be input
@@ -310,7 +309,7 @@ float polynomNeuronFunc (float* omegas, float* input, float sigma){
   float x = input[1];
   float final = sigma;
   for (int i = 0; i < n; i++){
-    final += powf((input)input,i+1) * omegas[i];
+    final += powf((int)input,i+1) * omegas[i];
   }
   return final;
 }
@@ -386,9 +385,9 @@ int main(){
   float weights[2] = {0,0};
   poly.omegas = weights;
   poly.sigma = 0;
-  poly.function = &quadraticNeuronFunc;
-  poly.backProp = &quadraticErrorFunc;
-  float input[6] = {0,3,1,6,2,11};
+  poly.function = &polynomNeuronFunc;
+  poly.backProp = &polynomErrorFunc;
+  float input[7] = {2,0,3,1,6,2,11};
   for (int i = 0; i < 10000; i++){
     (poly.backProp)(input, 6, &poly);
   }
