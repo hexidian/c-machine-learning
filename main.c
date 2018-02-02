@@ -252,7 +252,6 @@ float linearNeuronFunc (float* omegas, float* input, float sigma) {
   float m = omegas[0];
   float b = sigma;
   float x = input[0];
-  printf("taking %f, %f, and %f, so I output %f\n",m,x,b,(m*x)+b);
   return (m*x) + b;
 }
 
