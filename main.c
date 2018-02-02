@@ -260,7 +260,7 @@ float quadraticNeuronFunc (float* omegas, float* input, float sigma) {
   float b = omegas[1];
   float c = sigma;
   float x = input[0];
-  return a*pow(x,2) + b*x + c;//just ax^2 + bx + c
+  return a*powf(x,2) + b*x + c;//just ax^2 + bx + c
 }
 
 void quadraticErrorFunc(float* inputArray, int inputLength, struct neuron* self) {
@@ -272,7 +272,7 @@ void quadraticErrorFunc(float* inputArray, int inputLength, struct neuron* self)
   for (int i = 0; i < inputLength; i+=2) {
     fx = (self->function)(self->omegas, &inputArray[i], self->sigma);
     error = inputArray[i + 1] - fx;
-    aError += error * pow(inputArray[i],2);
+    aError += error * powf(inputArray[i],2);
     bError += error * inputArray[i];
     cError += error;
   }
@@ -282,6 +282,40 @@ void quadraticErrorFunc(float* inputArray, int inputLength, struct neuron* self)
   self->omegas[1] += bError / (inputLength*2);
 }
 
+void polynomErrorFunc (float* inputArray, int inputLength, struct neuron* self) {
+  float n = inputArray[0];
+  float omegaErrors[(int)n];
+  float sigmaError = 0;
+  float fx;
+  float funcInput[2]; funcInput[0] = n;
+  for (int i = 0; i < n; i++) {omegaErrors[i] = i;}//fills the omegaErrors array with 0s
+  for (int i = 1; i < inputLength; i+=2){
+    funcInput[1] = inputArray[i];
+    fx = (self->function)(self->omegas, funcInput, self->sigma);
+    for (int j = 0; j < n; j++){
+      omegaErrors[j] += (inputArray[i+1] - fx) * powf(inputArray[i],j+1);
+    }
+    sigmaError += inputArray[i+1] - fx;
+  }
+  self->sigma += sigmaError / (n*2);
+  for (int i = 0; i < n; i++){
+    (self->omegas)[i] += omegaErrors[i] / (n*2);
+  }
+}
+
+float polynomNeuronFunc (float* omegas, float* input, float sigma){
+  //for the polynomial funciton, the input will be formatted as follows:
+  //[n,x] where n is the greatest highest exponent able to be used (also the length of the omegas)
+  float n = input[0];//n does have to be a float, in order for the data types to match up
+  float x = input[1];
+  float final = sigma;
+  for (int i = 0; i < n; i++){
+    final += powf((input)input,i+1) * omegas[i];
+  }
+  return final;
+}
+
+//TODO make a general function which finds the polynomial function of best fit up to a given power (so linear would be 1, quadratic would be 2, cubic would be 3, etc.)
 int main(){
   /*
   struct node head = { 100, NULL, NULL, 0 };
@@ -335,6 +369,7 @@ int main(){
   }
   printf("omega is now: %f\nsigma is now: %f\n",lin.omegas[0],lin.sigma);
   */
+  /*
   struct neuron quad;
   float weights[2] = {0,0};
   quad.omegas = weights;
@@ -346,4 +381,16 @@ int main(){
     (quad.backProp)(input, 6, &quad);
   }
   printf("a is now: %f\nb is now: %f\nc is now: %f\n",quad.omegas[0],quad.omegas[1],quad.sigma);
+  */
+  struct neuron poly;
+  float weights[2] = {0,0};
+  poly.omegas = weights;
+  poly.sigma = 0;
+  poly.function = &quadraticNeuronFunc;
+  poly.backProp = &quadraticErrorFunc;
+  float input[6] = {0,3,1,6,2,11};
+  for (int i = 0; i < 10000; i++){
+    (poly.backProp)(input, 6, &poly);
+  }
+  printf("a is now: %f\nb is now: %f\nc is now: %f\n",poly.omegas[0],poly.omegas[1],poly.sigma);
 }
