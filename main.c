@@ -362,7 +362,7 @@ int main(){
   lin.sigma = 0;
   lin.function = &linearNeuronFunc;
   lin.backProp = &linearErrorFunc;
-  float input[4] = {1,2,2,4};
+  float input[8] = {1,2,2,3,3,5,4,4};
   for (int i = 0; i < 10000; i++){
     (lin.backProp)(input, 4, &lin);
   }
