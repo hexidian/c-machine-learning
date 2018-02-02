@@ -238,7 +238,7 @@ void linearErrorFunc(float* inputArray, int inputLength, struct neuron* self){
   float fx;
   for (int i = 0; i < inputLength; i+=2){
     fx = (self->function)(self->omegas, &inputArray[i], self->sigma);
-    if (inputArray[i] != 0) omegaError += (inputArray[ i + 1 ] - fx) / inputArray[i];  //omegaError += (y-f(x)) / x
+    if (inputArray[i] != 0) omegaError += (inputArray[ i + 1 ] - fx) * inputArray[i];  //omegaError += (y-f(x)) / x
     sigmaError += inputArray[ i + 1 ] - fx;
   }
 
@@ -302,9 +302,9 @@ int main(){
   lin.sigma = 0;
   lin.function = &linearNeuronFunc;
   lin.backProp = &linearErrorFunc;
-  float input[4] = {1.0,2.0,2.0,3.0};
-  for (int i = 0; i < 10; i++){
+  float input[4] = {1,2,2,4};
+  for (int i = 0; i < 10000; i++){
     (lin.backProp)(input, 4, &lin);
-    printf("omega is now: %f\nsigma is now: %f\n",lin.omegas[0],lin.sigma);
   }
+  printf("omega is now: %f\nsigma is now: %f\n",lin.omegas[0],lin.sigma);
 }
