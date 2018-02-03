@@ -386,10 +386,10 @@ int main(){
   poly.sigma = 0;
   poly.function = &polynomNeuronFunc;
   poly.backProp = &polynomErrorFunc;
-  float input[9] = {2,0,3,1,6,2,10.5,3,18.5};
+  float input[11] = {2,0,3,1,6,2,10.5,3,18.5,4,25};
 
   for (int i = 0; i < 100000; i++){
-    (poly.backProp)(input, 9, &poly);
+    (poly.backProp)(input, 11, &poly);
   }
   printf("a is now: %f\nb is now: %f\nc is now: %f\n\n",poly.omegas[0],poly.omegas[1],poly.sigma);
 
