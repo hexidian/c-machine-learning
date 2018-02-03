@@ -296,9 +296,9 @@ void polynomErrorFunc (float* inputArray, int inputLength, struct neuron* self) 
     }
     sigmaError += inputArray[i+1] - fx;
   }
-  self->sigma += sigmaError / (inputLength*20);
+  self->sigma += sigmaError / (pow(inputLength,2)*4);
   for (int i = 0; i < n; i++){
-    (self->omegas)[i] += omegaErrors[i] / (inputLength*20);
+    (self->omegas)[i] += omegaErrors[i] / (pow(inputLength,n)*4);
   }
 }
 
@@ -386,12 +386,29 @@ int main(){
   poly.sigma = 0;
   poly.function = &polynomNeuronFunc;
   poly.backProp = &polynomErrorFunc;
-  float input[11] = {2,0,3,1,6,2,10.5,3,18.5,4,25};
+  float input[13] = {2,0,3,1,6,2,10.5,3,18.5,4,25,5,31};
 
   for (int i = 0; i < 100000; i++){
-    (poly.backProp)(input, 11, &poly);
+    (poly.backProp)(input, 13, &poly);
   }
-  printf("a is now: %f\nb is now: %f\nc is now: %f\n\n",poly.omegas[0],poly.omegas[1],poly.sigma);
+  printf("a is now: %f\nb is now: %f\nc is now: %f\n\n",poly.omegas[0],poly.omegas[1],poly.sigma);//TODO have this then run python code which will use matplotlib to graph the points and the function
 
+  int fileWriteNumbers = (13-1)+3;
+  float numbersForFileWrite[fileWriteNumbers];
+  for (int i = 0; i < fileWriteNumbers-3; i++){
+    numbersForFileWrite[i] = input[i];
+  }
+  for (int i = fileWriteNumbers-3; i < fileWriteNumbers-1; i++){
+    numbersForFileWrite[i] = poly.omegas[3-(fileWriteNumbers-i)];
+  }
+  numbersForFileWrite[fileWriteNumbers-1] = poly.sigma;
+
+  FILE * fp;
+  fp = fopen("output.txt","w");
+  for (int i = 0; i < fileWriteNumbers; i++){
+    fprintf(fp,"%f\n",numbersForFileWrite[i]);
+  }
+  fclose(fp);
+  system("python grapher.py");
 
 }
