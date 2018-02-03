@@ -287,18 +287,18 @@ void polynomErrorFunc (float* inputArray, int inputLength, struct neuron* self) 
   float sigmaError = 0;
   float fx;
   float funcInput[2]; funcInput[0] = n;
-  for (int i = 0; i < n; i++) {omegaErrors[i] = i;}//fills the omegaErrors array with 0s
+  for (int i = 0; i < n; i++) {omegaErrors[i] = 0;}//fills the omegaErrors array with 0s
   for (int i = 1; i < inputLength; i+=2){
     funcInput[1] = inputArray[i];
     fx = (self->function)(self->omegas, funcInput, self->sigma);
     for (int j = 0; j < n; j++){
-      omegaErrors[j] += (inputArray[i+1] - fx) * powf(inputArray[i],j+1);
+      omegaErrors[j] += (inputArray[i+1] - fx) * powf(inputArray[i],n-j);
     }
     sigmaError += inputArray[i+1] - fx;
   }
-  self->sigma += sigmaError / (n*2);
+  self->sigma += sigmaError / (inputLength*20);
   for (int i = 0; i < n; i++){
-    (self->omegas)[i] += omegaErrors[i] / (n*2);
+    (self->omegas)[i] += omegaErrors[i] / (inputLength*20);
   }
 }
 
@@ -309,12 +309,11 @@ float polynomNeuronFunc (float* omegas, float* input, float sigma){
   float x = input[1];
   float final = sigma;
   for (int i = 0; i < n; i++){
-    final += powf((int)input,i+1) * omegas[i];
+    final += powf(x,n-i) * omegas[i];
   }
   return final;
 }
 
-//TODO make a general function which finds the polynomial function of best fit up to a given power (so linear would be 1, quadratic would be 2, cubic would be 3, etc.)
 int main(){
   /*
   struct node head = { 100, NULL, NULL, 0 };
@@ -387,9 +386,12 @@ int main(){
   poly.sigma = 0;
   poly.function = &polynomNeuronFunc;
   poly.backProp = &polynomErrorFunc;
-  float input[7] = {2,0,3,1,6,2,11};
-  for (int i = 0; i < 10000; i++){
-    (poly.backProp)(input, 6, &poly);
+  float input[9] = {2,0,3,1,6,2,10.5,3,18.5};
+
+  for (int i = 0; i < 100000; i++){
+    (poly.backProp)(input, 9, &poly);
   }
-  printf("a is now: %f\nb is now: %f\nc is now: %f\n",poly.omegas[0],poly.omegas[1],poly.sigma);
+  printf("a is now: %f\nb is now: %f\nc is now: %f\n\n",poly.omegas[0],poly.omegas[1],poly.sigma);
+
+
 }
