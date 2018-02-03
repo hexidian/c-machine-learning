@@ -298,7 +298,7 @@ void polynomErrorFunc (float* inputArray, int inputLength, struct neuron* self) 
   }
   self->sigma += sigmaError / (pow(inputLength,2)*4);
   for (int i = 0; i < n; i++){
-    (self->omegas)[i] += omegaErrors[i] / (pow(inputLength,n)*4);
+    (self->omegas)[i] += omegaErrors[i] / (pow(inputLength,2*n));
   }
 }
 
@@ -380,26 +380,27 @@ int main(){
   }
   printf("a is now: %f\nb is now: %f\nc is now: %f\n",quad.omegas[0],quad.omegas[1],quad.sigma);
   */
+  /*
   struct neuron poly;
-  float weights[2] = {0,0};
+  float weights[4] = {0,0,0,0};
   poly.omegas = weights;
   poly.sigma = 0;
   poly.function = &polynomNeuronFunc;
   poly.backProp = &polynomErrorFunc;
-  float input[13] = {2,0,3,1,6,2,10.5,3,18.5,4,25,5,31};
+  float input[25] = {4,-10,50,-9,40,-8,30,-5,10,-3,0,-4,0,0,10,1,20,3,25,7,10,9,-4,12,-6};
 
-  for (int i = 0; i < 100000; i++){
-    (poly.backProp)(input, 13, &poly);
+  for (int i = 0; i < 1000000; i++){
+    (poly.backProp)(input, 25, &poly);
   }
-  printf("a is now: %f\nb is now: %f\nc is now: %f\n\n",poly.omegas[0],poly.omegas[1],poly.sigma);//TODO have this then run python code which will use matplotlib to graph the points and the function
+  printf("a is now: %f\nb is now: %f\nc is now: %f\nd is now: %f\ne is now: %f\n",poly.omegas[0],poly.omegas[1],poly.omegas[2],poly.omegas[3],poly.sigma);//TODO have this then run python code which will use matplotlib to graph the points and the function
 
-  int fileWriteNumbers = (13-1)+3;
+  int fileWriteNumbers = (25)+5;
   float numbersForFileWrite[fileWriteNumbers];
-  for (int i = 0; i < fileWriteNumbers-3; i++){
+  for (int i = 0; i < fileWriteNumbers-5; i++){
     numbersForFileWrite[i] = input[i];
   }
-  for (int i = fileWriteNumbers-3; i < fileWriteNumbers-1; i++){
-    numbersForFileWrite[i] = poly.omegas[3-(fileWriteNumbers-i)];
+  for (int i = fileWriteNumbers-5; i < fileWriteNumbers-1; i++){
+    numbersForFileWrite[i] = poly.omegas[5-(fileWriteNumbers-i)];
   }
   numbersForFileWrite[fileWriteNumbers-1] = poly.sigma;
 
@@ -410,5 +411,5 @@ int main(){
   }
   fclose(fp);
   system("python grapher.py");
-
+  */
 }
